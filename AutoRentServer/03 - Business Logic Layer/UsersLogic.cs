@@ -1,7 +1,9 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -9,11 +11,7 @@ namespace BeardMan
 {
     public class UsersLogic : BaseLogic
     {
-        private readonly BlobsLogic blobsLogic;
-        public UsersLogic(AutoRentContext db, BlobsLogic blobsLogic) : base(db) 
-        {
-            this.blobsLogic = blobsLogic;
-        }
+        public UsersLogic(AutoRentContext db) : base(db) { }
 
         public List<UserModel> GetAllUsers()
         {
@@ -27,7 +25,23 @@ namespace BeardMan
 
         public UserModel GetUserByCredentials(CredentialsModel credentialsModel)
         {
-            return new UserModel(DB.Users.SingleOrDefault(u => u.Username == credentialsModel.Username && u.Password == credentialsModel.Password));
+            UserModel userToCheck = new UserModel(DB.Users.SingleOrDefault(p => p.Username == credentialsModel.Username));
+
+            if (credentialsModel.Password == userToCheck.Password)
+                return userToCheck;
+
+            credentialsModel.Password = Convert.ToBase64String(KeyDerivation.Pbkdf2(
+            password: credentialsModel.Password,
+            salt: Convert.FromBase64String(userToCheck.Salt),
+            prf: KeyDerivationPrf.HMACSHA1,
+            iterationCount: 10000,
+            numBytesRequested: 256 / 8));
+
+            if (credentialsModel.Password == userToCheck.Password)
+                return userToCheck;
+
+
+            return null;
         }
 
 
@@ -50,6 +64,20 @@ namespace BeardMan
             {
                 if (userModel.Role == null)
                     userModel.Role = "user";
+
+                byte[] salt = new byte[128 / 8];
+                using (var rng = RandomNumberGenerator.Create())
+                {
+                    rng.GetBytes(salt);
+                }
+                userModel.Salt = Convert.ToBase64String(salt);
+                userModel.Password = Convert.ToBase64String(KeyDerivation.Pbkdf2(
+                    password: userModel.Password,
+                    salt: salt,
+                    prf: KeyDerivationPrf.HMACSHA1,
+                    iterationCount: 10000,
+                    numBytesRequested: 256 / 8));
+
                 User addedUser = userModel.ConvertToUser();
                 DB.Users.Add(addedUser);
                 DB.SaveChanges();
@@ -75,7 +103,7 @@ namespace BeardMan
             return userModel;
         }
 
-        public async Task<UserModel> UpdateUser(UserModel userModel)
+        public UserModel UpdateUser(UserModel userModel)
         {
 
             if (userModel.Image != null)
@@ -84,8 +112,10 @@ namespace BeardMan
 
                 userModel.ImageFileName = Guid.NewGuid() + extension;
 
-                await blobsLogic.UploadFileBlobAsync(userModel.Image, userModel.ImageFileName);
-
+                using (FileStream fileStream = File.Create("Uploads/" + userModel.ImageFileName))
+                {
+                    userModel.Image.CopyTo(fileStream);
+                }
                 userModel.Image = null;
             }
             User user = DB.Users.SingleOrDefault(p => p.UserId == userModel.UserId);

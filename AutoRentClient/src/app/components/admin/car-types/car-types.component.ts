@@ -36,7 +36,9 @@ export class CarTypesComponent implements OnInit, OnDestroy {
   public carTypes: CarTypeModel[] = store.getState().carTypes;
   public cars: CarModel[] = [];
   public branches: BranchModel[] = store.getState().branches;
-  public tempCarTypesImages = new Array<string>();
+  public tempCarTypesImagesAsStrings = new Array<string>();
+  public carTypesImageChangedIds = new Array<number>();
+  public tempCarTypesImages;
   public carTypeToAdd = new CarTypeModel();
   public carToAdd = new CarModel();
   public unsubscribe: Unsubscribe;
@@ -69,8 +71,9 @@ export class CarTypesComponent implements OnInit, OnDestroy {
         const success = await this.carTypesService.getAllCarTypes();
         if (success) {
           this.carTypes = store.getState().carTypes;
+          this.tempCarTypesImages = new Array<File>(this.carTypes.length);
           for (let c of this.carTypes) {
-            this.tempCarTypesImages.push(c.imageFileName);
+            this.tempCarTypesImagesAsStrings.push(c.imageFileName);
           }
         }
       }
@@ -84,16 +87,23 @@ export class CarTypesComponent implements OnInit, OnDestroy {
     }
   }
 
-  public displayPreview(image: File, i: number): void {
+  public changeImage(image: File, i: number): void {
     this.carTypes[i].image = image;
     const fileReader = new FileReader();
-    fileReader.onload = args => this.tempCarTypesImages[i] = args.target.result.toString();
+    fileReader.onload = args => {
+      this.tempCarTypesImagesAsStrings[i] = args.target.result.toString();
+      this.tempCarTypesImages[i] = image;
+      console.log(this.tempCarTypesImagesAsStrings[i]);
+      console.log(this.tempCarTypesImages[i].name);
+    };
     fileReader.readAsDataURL(image);
   }
 
   async UpdateCarType(carTypesIndex: number, succeededTemplateRef, failedTemplateRef) {
     try {
       console.log(this.carTypes[carTypesIndex]);
+      if(this.carTypes[carTypesIndex].imageFileName!==this.tempCarTypesImagesAsStrings[carTypesIndex])
+        this.carTypes[carTypesIndex].imageFileName!==this.tempCarTypesImagesAsStrings[carTypesIndex];
       await this.carTypesService.UpdateCarType(this.carTypes[carTypesIndex]);
       this.carTypes = store.getState().carTypes;
       this.openDialog(succeededTemplateRef);

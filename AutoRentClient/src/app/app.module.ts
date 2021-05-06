@@ -29,6 +29,7 @@ import { MatSliderModule } from '@angular/material/slider';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { AvailabilitiesComponent } from './components/availabilities/availabilities.component';
 import { DummyComponent } from './components/dummy/dummy.component';
+import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
 
 
 @NgModule({
@@ -51,6 +52,7 @@ import { DummyComponent } from './components/dummy/dummy.component';
     CarsComponent,
     AvailabilitiesComponent,
     DummyComponent,
+    PageNotFoundComponent,
 
   ],
   imports: [

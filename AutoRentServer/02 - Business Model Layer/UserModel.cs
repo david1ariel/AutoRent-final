@@ -15,6 +15,7 @@ namespace BeardMan
         public string Email { get; set; }
         public string Username { get; set; }
         public string Password { get; set; }
+        public string Salt { get; set; }
         public string Role { get; set; }
         public string JwtToken { get; set; }
         public IFormFile Image { get; set; }
@@ -36,6 +37,7 @@ namespace BeardMan
             Email = user.Email;
             Username = user.Username;
             Password = user.Password;
+            Salt = user.Salt;
             Role = user.Role;
             ImageFileName = user.ImageFileName;
         }
@@ -50,6 +52,7 @@ namespace BeardMan
             Email = user.Email;
             Username = user.Username;
             Password = user.Password;
+            Salt = user.Salt;
             Role = user.Role;
             ImageFileName = user.ImageFileName;
             Country = adress.Country;
@@ -70,6 +73,7 @@ namespace BeardMan
                 Email = Email,
                 Username = Username,
                 Password = Password,
+                Salt = Salt,
                 Role = Role,
                 ImageFileName = ImageFileName,
             };
@@ -98,6 +102,7 @@ namespace BeardMan
                 Email = Email,
                 Username = Username,
                 Password = Password,
+                Salt = Salt,
                 Role = Role,
                 JwtToken = JwtToken,
                 Image = Image,

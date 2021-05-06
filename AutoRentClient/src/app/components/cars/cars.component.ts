@@ -10,6 +10,7 @@ import { RentModel } from 'src/app/models/rent.model';
 import { UserModel } from 'src/app/models/user.model';
 import { MatDialog } from '@angular/material/dialog';
 import { RentsService } from 'src/app/services/rents.service';
+import { BranchModel } from 'src/app/models/branch.model';
 
 @Component({
   selector: 'app-cars',
@@ -41,9 +42,10 @@ export class CarsComponent implements OnInit, OnDestroy {
   public localDialogRef;
   public preview: string;
   public carToRent: CarModel;
-  public isCarExistsInBranch: number = 0;
+  public isCarExistInBranch: number = 0;
   public windowWidth = window.innerWidth;
   public isShowFilters = false;
+  public price: number;
 
   constructor(
     private carTypesService: CarTypesService,
@@ -55,36 +57,44 @@ export class CarsComponent implements OnInit, OnDestroy {
 
   async ngOnInit() {
     try {
-      this.unsubscribe = store.subscribe(() => this.carTypes = store.getState().carTypes);
-      if (store.getState().carTypes.length === 0) {
-        const success = await this.carTypesService.getAllCarTypes();
-        if (success) {
-          this.carsToShow = this.carTypes;
-          this.initManufacturerFilter();
-          console.log(this.manufacturerFilter);
-          this.initYearFilter();
-          console.log(this.yearFilter);
-          console.log(this.isShowFilters);
-        }
+      this.unsubscribe = store.subscribe(() => {
+        this.carTypes = store.getState().carTypes;
+        this.cars = store.getState().cars;
+        this.availableCars = store.getState().availableCars;
+        this.user = store.getState().user;
+        this.price = this.calcPrice();
+      });
+
+      if (store.getState().carTypes.length) {
+        this.carTypes = store.getState().carTypes;
       }
       else {
-        this.carTypes = store.getState().carTypes;
-        this.carsToShow = this.carTypes;
+        await this.carTypesService.getAllCarTypes();
       }
-      this.unsubscribe = store.subscribe(() => this.cars = store.getState().cars);
-      if (store.getState().cars.length === 0) {
+
+      if (store.getState().cars.length) {
+        this.cars = store.getState().cars;
+      }
+      else {
         await this.carsService.getAllCars();
       }
+
+      if (store.getState().availableCars.length) {
+        this.availableCars = store.getState().availableCars;
+      }
+      else {
+        await this.carsService.getAllAvailableCars(this.rent);
+      }
+
+      this.carsToShow = this.carTypes;
+      this.initManufacturerFilter();
+      this.initYearFilter();
+      this.initBranchFilter();
+
+      this.carsToShow = this.carTypes;
+
       this.rent.pickupDate = new Date();
       this.rent.returnDate = new Date();
-      this.unsubscribe = store.subscribe(() => this.availableCars = store.getState().availableCars);
-      if (store.getState().availableCars.length === 0)
-        await this.carsService.getAllAvailableCars(this.rent);
-      this.initBranchFilter();
-      this.unsubscribe = store.subscribe(() => {
-        this.user = store.getState().user;
-        this.windowWidth = store.getState().windowWidth;
-      });
 
       if (localStorage.getItem("carTypes") !== null)
         this.localStorageCarTypes = JSON.parse(localStorage.getItem("carTypes"));
@@ -100,19 +110,24 @@ export class CarsComponent implements OnInit, OnDestroy {
     return self.indexOf(value) === index;
   }
 
-  changeDateToNow() {
+  changePickupDateToNow() {
     if (this.pickupDateString === undefined) {
       const date = new Date();
       date.setTime(date.getTime() + 2 * 60 * 60 * 1000);
       this.pickupDateString = date.toISOString().slice(0, 10);
-      this.returnDateString = date.toISOString().slice(0, 10);
       this.rent.pickupDate = new Date(this.pickupDateString);
+    }
+  }
+  changeReturnDateToNow() {
+    if (this.returnDateString === undefined) {
+      const date = new Date();
+      date.setTime(date.getTime() + 2 * 60 * 60 * 1000);
+      this.returnDateString = date.toISOString().slice(0, 10);
       this.rent.returnDate = new Date(this.returnDateString);
     }
-
   }
 
-  toggleFilters(){
+  toggleFilters() {
     this.isShowFilters = !this.isShowFilters;
   }
 
@@ -156,7 +171,13 @@ export class CarsComponent implements OnInit, OnDestroy {
   }
 
   filterByBranch(event) {
+    if (event.target.value === 'allBranches') {
+      this.carsToShow = store.getState().carTypes;
+      return;
+    }
+
     if (event.target.value !== '') {
+      this.chosenBranchId = this.branchFilter.findIndex(p => p === event.target.value);
       const carsByBranch = [];
       this.carsToShow = [];
       for (const car of this.cars) {
@@ -165,7 +186,6 @@ export class CarsComponent implements OnInit, OnDestroy {
         }
       }
       for (const car of carsByBranch) {
-
         this.carsToShow.push(this.carTypes.find(p => p.carTypeId === car.carTypeId));
       }
       this.carsToShow = this.carsToShow.filter(this.onlyUnique);
@@ -191,49 +211,51 @@ export class CarsComponent implements OnInit, OnDestroy {
     }
   }
 
-
   async sendDates() {
-    try {
-      // check if checkbox it checked:
-      if (this.available === true) {
-        // check if dates are valid:
-        const now = new Date();
-        if (this.pickupDateString === "" || this.returnDateString === ""
-          || this.pickupDateString === undefined || this.returnDateString === undefined
-          || new Date(this.pickupDateString).valueOf() < now.valueOf() - (1000 * 60 * 60 * 24)
-          || new Date(this.pickupDateString).valueOf() > new Date(this.returnDateString).valueOf()) {
-            // if dates are not valid, alert it and set dates to now:
-            alert("Dates must make sense!");
-          this.available = false;
-          const date = new Date();
-          this.pickupDateString = date.toISOString().slice(0, 10);
-          this.returnDateString = date.toISOString().slice(0, 10);
-          this.rent.pickupDate = new Date(this.pickupDateString);
-          this.rent.returnDate = new Date(this.returnDateString);
-          return;
-        }
-        // if dates are valid, send them to server as rentModel:
-        this.rent.pickupDate = new Date(this.pickupDateString);
-        this.rent.returnDate = new Date(this.returnDateString);
-        const success = await this.carTypesService.getAllAvailableCarTypes(this.rent);
-        if (store.getState().availableCarTypes.length>0)
-          this.carsToShow = store.getState().availableCarTypes;
+    this.available = !this.available;
+    // check if checkbox is checked:
+    // if (this.available === true) {
+      // check if dates are valid:
+      const now = new Date();
+      if (this.pickupDateString === "" || this.returnDateString === ""
+        || this.pickupDateString === undefined || this.returnDateString === undefined) {
+        alert('Both dates must be defined');
+        // this.available = false;
+        // event.stopPropagation();
+        return;
       }
-      else {
-        this.carsToShow = this.carTypes;
+      // if (new Date(this.pickupDateString).valueOf() < now.valueOf() - (1000 * 60 * 60 * 24)) {
+      //   alert('Pickup date must from now on');
+      //   // this.available = false;
+      //   // event.stopPropagation();
+      //   return;
+      // }
+      if (new Date(this.pickupDateString).valueOf() > new Date(this.returnDateString).valueOf()) {
+        alert('Return date must be after pickup date');
+        // this.available = false;
+        // event.stopPropagation();
+        return;
       }
-    }
-
-    catch (error) {
-      console.log(error.message);
-    }
+      this.rent.pickupDate = new Date(this.pickupDateString);
+      this.rent.returnDate = new Date(this.returnDateString);
+      const success = await this.carTypesService.getAllAvailableCarTypes(this.rent);
+      if (store.getState().availableCarTypes.length > 0)
+        this.carsToShow = store.getState().availableCarTypes;
+    // }
+    // else {
+    //   this.carsToShow = this.carTypes;
+    // }
   }
 
-
+  showAllCars(){
+    this.available = !this.available;
+    this.carsToShow = this.carTypes;
+  }
 
   public async beginRent(carTypeId: number, confirmRentTemplateRef, loggedOutTemplateRef) {
     try {
-      this.isCarExistsInBranch = 0;
+      this.checkCarTypesByBranch(this.branchFilter[this.chosenBranchId]);
+      // this.isCarExistInBranch = 0;
       // await this.carsService.getAllAvailableCars(this.rent);
       // await this.carTypesService.getAllAvailableCarTypes(this.rent);
 
@@ -269,12 +291,15 @@ export class CarsComponent implements OnInit, OnDestroy {
           const date = new Date();
           this.pickupDateString = date.toISOString().slice(0, 10);
         }
-        if (this.pickupDateString === "") {
+        if (this.returnDateString === "") {
           const date = new Date();
           this.returnDateString = date.toISOString().slice(0, 10);
         }
         if (this.rent.pickupDate === undefined) {
-          this.changeDateToNow();
+          this.changePickupDateToNow();
+        }
+        if (this.rent.returnDate === undefined) {
+          this.changeReturnDateToNow();
         }
 
         // if user is logged in:
@@ -291,23 +316,23 @@ export class CarsComponent implements OnInit, OnDestroy {
 
   }
 
- async checkCarTypesByBranch(event) {
+  checkCarTypesByBranchEvent(event) {
+    this.checkCarTypesByBranch(event.target.value);
+  }
 
-    this.isCarExistsInBranch = 0;
-    const success = await this.carsService.getAllAvailableCars(this.rent);
-    if(success){
-      console.log(this.availableCars);
-      for (const car of this.availableCars) {
-        if (car.carTypeId === this.chosenCarType.carTypeId && car.branch == event.target.value) {
-          this.carToRent = car;
-          this.rent.carId = car.carId;
-          this.isCarExistsInBranch = 1;
-          return;
-        }
+  async checkCarTypesByBranch(string) {
+    this.isCarExistInBranch = 0;
+    await this.carsService.getAllAvailableCars(this.rent);
+    console.log(this.availableCars);
+    for (const car of this.availableCars) {
+      if (car.carTypeId === this.chosenCarType.carTypeId && car.branch == string) {
+        this.carToRent = car;
+        this.rent.carId = car.carId;
+        this.isCarExistInBranch = 1;
+        return;
       }
-
     }
-    this.isCarExistsInBranch = -1;
+    this.isCarExistInBranch = -1;
   }
 
   async executeRent(receivedTemplateRef, errorTemplateRef) {
@@ -325,44 +350,46 @@ export class CarsComponent implements OnInit, OnDestroy {
   }
 
   pickupDateChanged() {
-
-    const now = new Date();
-    if (new Date(this.pickupDateString).valueOf() < now.valueOf() - (1000 * 60 * 60 * 24)
-    ) {
-      console.log(new Date(this.pickupDateString).valueOf() < (now.setHours(now.getHours() + 1)).valueOf());
-      alert("Dates must make sense!");
-      const date = new Date();
-      this.pickupDateString = date.toISOString().slice(0, 10);
-      this.returnDateString = date.toISOString().slice(0, 10);
-      this.rent.pickupDate = new Date(this.pickupDateString);
-      this.rent.returnDate = new Date(this.returnDateString);
-      return;
-    }
-    else {
-      this.rent.pickupDate = new Date(this.pickupDateString);
-      this.rent.returnDate = new Date(this.returnDateString);
-    }
+    // const now = new Date();
+    // if (new Date(this.pickupDateString).valueOf() < now.valueOf() - (1000 * 60 * 60 * 24)
+    // ) {
+    //   alert("Dates must make sense!");
+    //   this.pickupDateString = now.toISOString().slice(0, 10);
+    //   this.returnDateString = now.toISOString().slice(0, 10);
+    //   this.rent.pickupDate = new Date(this.pickupDateString);
+    //   this.rent.returnDate = new Date(this.returnDateString);
+    //   return;
+    // }
+    // else {
+    this.rent.pickupDate = new Date(this.pickupDateString);
+    // this.rent.returnDate = new Date(this.returnDateString);
+    // }
+    this.calcPrice();
   }
 
   returnDateChanged() {
+    // const now = new Date();
+    // if (
+    //   new Date(this.pickupDateString).valueOf() > new Date(this.returnDateString).valueOf()
+    // ) {
+    //   console.log(new Date(this.pickupDateString).valueOf() < (now.setHours(now.getHours() + 1)).valueOf());
+    //   alert("Dates must make sense!");
+    //   const date = new Date();
+    //   this.pickupDateString = date.toISOString().slice(0, 10);
+    //   this.returnDateString = date.toISOString().slice(0, 10);
+    //   this.rent.pickupDate = new Date(this.pickupDateString);
+    //   this.rent.returnDate = new Date(this.returnDateString);
+    //   return;
+    // }
+    // else {
+    //   this.rent.pickupDate = new Date(this.pickupDateString);
+    this.rent.returnDate = new Date(this.returnDateString);
+    // }
+    this.calcPrice();
+  }
 
-    const now = new Date();
-    if (
-      new Date(this.pickupDateString).valueOf() > new Date(this.returnDateString).valueOf()
-    ) {
-      console.log(new Date(this.pickupDateString).valueOf() < (now.setHours(now.getHours() + 1)).valueOf());
-      alert("Dates must make sense!");
-      const date = new Date();
-      this.pickupDateString = date.toISOString().slice(0, 10);
-      this.returnDateString = date.toISOString().slice(0, 10);
-      this.rent.pickupDate = new Date(this.pickupDateString);
-      this.rent.returnDate = new Date(this.returnDateString);
-      return;
-    }
-    else {
-      this.rent.pickupDate = new Date(this.pickupDateString);
-      this.rent.returnDate = new Date(this.returnDateString);
-    }
+  calcPrice(): number {
+    return (((this.rent.returnDate?.valueOf() - this.rent.pickupDate?.valueOf()) / 1000 / 60 / 60 / 24) * this.chosenCarType.pricePerDay);
   }
 
   openDialog(templateRef) {
@@ -372,21 +399,18 @@ export class CarsComponent implements OnInit, OnDestroy {
     });
   }
 
-
   async onCloseDialog() {
     this.dialog.closeAll();
     // handling list of available car types:
-    if(this.available){
+    if (this.available) {
       const success = await this.carTypesService.getAllAvailableCarTypes(this.rent);
-      if(success){
-        if (store.getState().availableCarTypes.length>0)
+      if (success) {
+        if (store.getState().availableCarTypes.length > 0)
           this.carsToShow = store.getState().availableCarTypes;
-      else
-        this.carsToShow = [];
+        else
+          this.carsToShow = [];
       }
-
     }
-
   }
 
   enableFullCarTypeDisplay(c: CarTypeModel, templateRef) {
@@ -395,10 +419,8 @@ export class CarsComponent implements OnInit, OnDestroy {
     this.openDialog(templateRef);
   }
 
-
-
   ngOnDestroy(): void {
-    // this.unsubscribe();
+    this.unsubscribe();
   }
 }
 

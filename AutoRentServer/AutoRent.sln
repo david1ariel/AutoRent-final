@@ -3,15 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30413.136
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "01 - Data Access Layer", "01 - Data Access Layer\01 - Data Access Layer.csproj", "{E37405F6-F8FB-4D6D-9243-3B1D59941847}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "01 - Data Access Layer", "01 - Data Access Layer\01 - Data Access Layer.csproj", "{E37405F6-F8FB-4D6D-9243-3B1D59941847}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "02 - Business Model Layer", "02 - Business Model Layer\02 - Business Model Layer.csproj", "{1F150BAF-F781-4EF9-A95C-1A41ED241F01}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "02 - Business Model Layer", "02 - Business Model Layer\02 - Business Model Layer.csproj", "{1F150BAF-F781-4EF9-A95C-1A41ED241F01}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "03 - Business Logic Layer", "03 - Business Logic Layer\03 - Business Logic Layer.csproj", "{F6859A31-A785-4A8E-AAFE-5102AB5FA22E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "03 - Business Logic Layer", "03 - Business Logic Layer\03 - Business Logic Layer.csproj", "{F6859A31-A785-4A8E-AAFE-5102AB5FA22E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "04 - Data Handler", "04 - Data Handler\04 - Data Handler.csproj", "{5E6C34EE-2292-447C-B34F-48BAED8F337A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "04 - Data Handler", "04 - Data Handler\04 - Data Handler.csproj", "{5E6C34EE-2292-447C-B34F-48BAED8F337A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "05 - Rest Api", "05 - Rest Api\05 - Rest Api.csproj", "{230C8AC2-3433-409D-A508-4FF86698D32F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "05 - Rest Api", "05 - Rest Api\05 - Rest Api.csproj", "{230C8AC2-3433-409D-A508-4FF86698D32F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

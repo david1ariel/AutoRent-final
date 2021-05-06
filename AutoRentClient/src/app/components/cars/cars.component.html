@@ -1,4 +1,4 @@
-<div class="cars-container" *ngIf="carTypes&&windowWidth>=576">
+<div class="cars-container" *ngIf="carTypes">
   <div class="headline">
     <h1>OUR CARS FLEET:</h1>
   </div>
@@ -7,8 +7,12 @@
 
       <thead>
         <tr class="tr-head">
-          <th><input [(ngModel)]="available" (ngModelChange)="sendDates()" type="checkbox">&nbsp;&nbsp;Show only
-            available between dates:</th>
+          <th>
+            <!-- <input [(ngModel)]="available" (ngModelChange)="sendDates($event)" type="checkbox">&nbsp;&nbsp;Show only
+            available between dates: -->
+            Show only available between dates:
+
+          </th>
 
           <th>
             <select class="exist-car-input" name="manufacturer" (change)="filterByManufacturer($event)">
@@ -38,6 +42,7 @@
           <th>
             <select class="exist-car-input" name="branch" (change)="filterByBranch($event)">
               <option value='' disabled selected hidden>Branch</option>
+              <option value="allBranches">All Branches</option>
               <option *ngFor="let b of branchFilter; let i = index" value="{{b}}">{{b}}</option>
             </select>
           </th>
@@ -48,8 +53,11 @@
 
         </tr>
         <tr class="tr-head">
-          <th><input class="date-input1" type="date" [(ngModel)]="pickupDateString" (focus)="changeDateToNow()">
-            <input class="date-input1" type="date" [(ngModel)]="returnDateString" (focus)="changeDateToNow()">
+          <th>Pickup Date: <br><input class="date-input1" type="date" (change)="pickupDateChanged()"  [(ngModel)]="pickupDateString" (focus)="changePickupDateToNow()">
+            <br>
+            Return Date:
+            <br>
+            <input class="date-input1" type="date" (Change)="returnDateChanged()" [(ngModel)]="returnDateString" (focus)="changeReturnDateToNow()">
           </th>
           <th></th>
           <th></th>
@@ -60,7 +68,7 @@
           <th></th>
         </tr>
         <tr class="tr-head">
-          <th></th>
+          <th><button [hidden]="available" (click)="sendDates()">Show</button><button [hidden]="!available" (click)="showAllCars()">Show All Cars</button></th>
           <th>Manufacturer</th>
           <th>Model</th>
           <th>Year</th>
@@ -92,7 +100,7 @@
   </div>
 </div>
 
-<div class="cars-container-mobile" *ngIf="carTypes&&windowWidth<576">
+<!-- <div class="cars-container-mobile" *ngIf="carTypes&&windowWidth<576">
   <div class="headline-mobile">
     <h1>OUR CARS FLEET:</h1>
   </div>
@@ -195,14 +203,13 @@
   <img *ngFor="let c of localStorageCarTypes" class="car-img" class="img-storage" [src]=c.imageFileName
     (click)="enableFullCarTypeDisplay(c, displayFullCarType)">
 
-</div>
+</div> -->
 
 
 <ng-template #confirmRent>
   <div class="box">
     <i class="material-icons icon-close" (click)="onCloseDialog()">close</i>
     <h4>Please confirm the following:</h4>
-
     <table class="confirm-table">
       <thead>
         <tr class="tr-head">
@@ -224,29 +231,28 @@
           <td>{{chosenCarType.gear}}</td>
           <td>{{chosenCarType.pricePerDay | currency:"ILS"}}</td>
           <td>{{chosenCarType.pricePerDayLate | currency:"ILS"}}</td>
-
         </tr>
       </tbody>
     </table>
-
     <div>
-      <h5>Pickup Date: <input type="date" (focus)="changeDateToNow()" [(ngModel)]="pickupDateString" (change)="pickupDateChanged()" >{{this.rent.pickupDate | date}}</h5>
-      <h5>Return Date: <input type="date" (focus)="changeDateToNow()" [(ngModel)]="returnDateString" (change)="returnDateChanged()" >{{this.rent.returnDate | date}}</h5>
+      <h5>Pickup Date: <input type="date" (focus)="changePickupDateToNow()" [(ngModel)]="pickupDateString"
+          (change)="pickupDateChanged()">{{this.rent.pickupDate | date}}</h5>
+      <h5>Return Date: <input type="date" (focus)="changeReturnDateToNow()" [(ngModel)]="returnDateString"
+          (change)="returnDateChanged()">{{this.rent.returnDate | date}}</h5>
       <h5>Total Cost:
-        {{((this.rent.returnDate.valueOf()-this.rent.pickupDate.valueOf())/1000/60/60/24)*this.chosenCarType.pricePerDay
-        | currency:"ILS"}}</h5>
+        {{price | currency:"ILS"}}</h5>
     </div>
     <div>
       <h5>Select Branch:</h5>
-      <select class="exist-car-input" name="branch" (change)="checkCarTypesByBranch($event)">
-        <option value='' disabled selected hidden>Branch</option>
-        <option *ngFor="let b of branchFilter; let i = index" value="{{b}}">{{b}}</option>
+      <select class="exist-car-input" name="branch" (change)="checkCarTypesByBranchEvent($event)">
+        <option *ngFor="let b of branchFilter; let i = index" value="{{b}}" [selected]="i===chosenBranchId">{{b}}</option>
       </select>
-      <label *ngIf="isCarExistsInBranch === 1">The car is available in this branch on those dates.</label>
-      <label *ngIf="isCarExistsInBranch === -1">sorry, no car of this type is available in this branch on those dates... Please choose another branch.</label>
+      <label *ngIf="isCarExistInBranch === 1">The car is available in this branch on those dates.</label>
+      <label *ngIf="isCarExistInBranch === -1">sorry, no car of this type is available in this branch on those dates...
+        Please choose another branch.</label>
     </div>
-    <button class="btn btn-success"
-      (click)="onCloseDialog(); executeRent(received, error)" [disabled]="isCarExistsInBranch===-1||isCarExistsInBranch===0">CONFIRM</button>
+    <button class="btn btn-success" (click)="onCloseDialog(); executeRent(received, error)"
+      [disabled]="isCarExistInBranch===-1||isCarExistInBranch===0">CONFIRM</button>
     <button class="btn btn-danger" (click)="onCloseDialog()">CANCEL</button>
 
   </div>
@@ -283,10 +289,10 @@
 
 
     <label for="">Pickup:</label>
-    <input class="date-input1" type="date" [(ngModel)]="pickupDateString" (focus)="changeDateToNow()">
+    <input class="date-input1" type="date" [(ngModel)]="pickupDateString" (focus)="changePickupDateToNow()">
 
     <label for="">Return:</label>
-    <input class="date-input2" type="date" [(ngModel)]="returnDateString">
+    <input class="date-input2" type="date" [(ngModel)]="returnDateString" (focus)="changeReturnDateToNow()">
 
     <button type="button" class="btn btn-primary"
       (click)="beginRent(chosenCarType.carTypeId, confirmRent, loggedOut)">Confirm</button>

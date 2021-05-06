@@ -48,7 +48,6 @@ export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
         this.h2Ref.nativeElement.style.padding = "0";
         this.headline.nativeElement.style.paddingLeft = "40px";
       }
-
     });
     console.log(this.windowWidth);
   }
@@ -62,7 +61,7 @@ export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
   onResize() {
     this.windowWidth = window.innerWidth;
     console.log(this.windowWidth);
-    
+
     if (this.windowWidth <= 576) {
       this.h1Ref.nativeElement.style.fontSize = "40px";
       this.h2Ref.nativeElement.style.fontSize = "13px";

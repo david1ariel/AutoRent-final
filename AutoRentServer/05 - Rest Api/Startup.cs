@@ -1,8 +1,6 @@
 using Azure.Storage.Blobs;
-using BeardMan.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Azure.Management.Storage.Fluent;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -29,7 +27,6 @@ namespace BeardMan
             services.AddTransient<HomeLogic>();
             services.AddTransient<RentsLogic>();
             services.AddTransient<UsersLogic>();
-            services.AddTransient<BlobsLogic>();
             services.AddTransient<AutoRentContext>();
 
             JwtHelper jwtHelper = new JwtHelper(Configuration.GetValue<string>("JWT:key"));
@@ -38,7 +35,6 @@ namespace BeardMan
             services.AddSingleton(x =>
              new BlobServiceClient(connectionString: Configuration.GetValue<string>(key: "Azure")));
 
-            services.AddSingleton<IBlobService, BlobService>();
 
             services.AddAuthentication(options => jwtHelper.SetAuthenticaionOptions(options))
                 .AddJwtBearer(options => jwtHelper.SetBearerOptions(options));

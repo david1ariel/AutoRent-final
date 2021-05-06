@@ -9,29 +9,23 @@ namespace BeardMan
 {
     public class CarTypesLogic : BaseLogic
     {
-        private readonly BlobsLogic blobsLogic;
-        public CarTypesLogic(AutoRentContext db, BlobsLogic blobsLogic) : base(db) 
-        {
-            this.blobsLogic = blobsLogic;
-        }
+        public CarTypesLogic(AutoRentContext db) : base(db)  { }
 
         public List<CarTypeModel> GetAllCarTypes()
         {
             return DB.CarTypes.Select(p => new CarTypeModel(p)).ToList();
         }
 
-        public async Task<CarTypeModel> UpdateCarType(CarTypeModel carTypeModel)
+        public CarTypeModel UpdateCarType(CarTypeModel carTypeModel)
         {
             if (carTypeModel.Image != null)
             {
-
-
                 string extension = Path.GetExtension(carTypeModel.Image.FileName);
-
                 carTypeModel.ImageFileName = Guid.NewGuid() + extension;
-
-                await blobsLogic.UploadFileBlobAsync(carTypeModel.Image, carTypeModel.ImageFileName);
-
+                using (FileStream fileStream = File.Create("Uploads/" + carTypeModel.ImageFileName))
+                {
+                    carTypeModel.Image.CopyTo(fileStream);
+                }
                 carTypeModel.Image = null;
             }
 
@@ -95,8 +89,6 @@ namespace BeardMan
                          car.IsFixed==1
                          select carType).Distinct();
 
-            
-
             List<CarTypeModel> carTypeModels = new List<CarTypeModel>();
             foreach (var item in query)
             {
@@ -118,25 +110,18 @@ namespace BeardMan
                         carHasNoAvail = false;
                         break;
                     }
-                   
                 }
-                
                 if (carHasNoAvail == true)
                 {
                     carsWithNoAvail.Add(car);
                 }
-
             }
-
             foreach (var item in carsWithNoAvail)
             {
                 CarTypeModel carTypeToCheck = carTypeModels.SingleOrDefault(p => p.CarTypeId == item.CarTypeId);
                 if(carTypeToCheck==null)
                     carTypeModels.Add (new CarTypeModel(DB.CarTypes.SingleOrDefault(p => p.CarTypeId == item.CarTypeId)));
             }
-
-            
-
             return carTypeModels;
         }
 

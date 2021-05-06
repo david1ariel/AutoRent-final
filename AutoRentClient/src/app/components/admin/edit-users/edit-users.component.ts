@@ -49,6 +49,10 @@ export class EditUsersComponent implements OnInit {
     fileReader.readAsDataURL(image);
   }
 
+  changeForbidden(){
+    alert('User ID can not be edited!');
+  }
+
   async addUser(succeededTemplateRef, failedTemplateRef){
     const sucess = await this.usersService.addUser(this.userToAdd);
     if(sucess){

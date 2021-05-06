@@ -26,8 +26,8 @@
         <tr style="background-color: rgb(55, 64, 35);">
           <td>
 
-            <input type="file" #imageBox class="file-input" (change)="displayPreview($event.target.files[0], i)">
-            <img [src]="tempCarTypesImages[i]" (click)="imageBox.click()" class="car-imgae">
+            <input type="file" #imageBox class="file-input" (change)="changeImage($event.target.files[0], i)">
+            <img [src]="tempCarTypesImagesAsStrings[i]" (click)="imageBox.click()" class="car-imgae">
           </td>
           <td>
             <input type="text" class="exist-car-input" [(ngModel)]="c.manufacturer">

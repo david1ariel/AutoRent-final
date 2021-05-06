@@ -15,6 +15,7 @@ import { DummyComponent } from './components/dummy/dummy.component';
 import { AccountDashboardComponent } from './components/account/account-dashboard/account-dashboard.component';
 import { EditDetailsComponent } from './components/account/edit-details/edit-details.component';
 import { PrsonalReservationsComponent } from './components/account/prsonal-reservations/prsonal-reservations.component';
+import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
 
 
 const routes: Routes = [
@@ -31,6 +32,7 @@ const routes: Routes = [
     {path: "account", loadChildren: () => import("./components/account/account.module").then(m=>m.AccountModule)},
     {path: "return-car", canActivate:[ReturnCarGuardService],  component: ReturnCarComponent},
     { path: "", redirectTo: "/home", pathMatch: "full" },
+    { path: "**", component: PageNotFoundComponent }
 ];
 
 @NgModule({

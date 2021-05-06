@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <RootNamespace>BeardMan</RootNamespace>
+    <UserSecretsId>f261eb57-c175-4a41-82d7-20f1d30d9d50</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -25,11 +26,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\04 - Data Handler\04 - Data Handler.csproj" />
+    <Folder Include="wwwroot\" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="wwwroot\" />
+    <ProjectReference Include="..\03 - Business Logic Layer\03 - Business Logic Layer.csproj" />
   </ItemGroup>
 
 

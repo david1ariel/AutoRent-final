@@ -1,4 +1,4 @@
-export const baseUrl = 'https://auto-rent.azurewebsites.net';
+export const baseUrl = '';
 
 export const environment = {
   production: true,

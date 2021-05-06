@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using BeardMan.Services;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace BeardMan.Controllers
 {
@@ -15,30 +12,23 @@ namespace BeardMan.Controllers
 
 
     {
-        private readonly IBlobService blobService;
-
-        public ImagesController(IBlobService blobService)
-        {
-            this.blobService = blobService;
-        }
-
         [HttpGet]
-        [Route("{blobName}")]
-        public async Task<IActionResult> GetBlob(string blobName)
+        [Route("{fileName}")]
+        public IActionResult GetImage(string fileName)
         {
             try
             {
-                var data = await blobService.GetBlobAsync(blobName);
+                // Open a stream to the file: 
+                FileStream fileStream = System.IO.File.OpenRead("Uploads/" + fileName);
 
-                // Send back the stream to the client:
-                return File(data.Value.Content, data.Value.ContentType);
+                // Send back the stream to the client: 
+                return File(fileStream, "image/jpeg");
             }
             catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
         }
-
 
     }
 }

@@ -1,6 +1,7 @@
 <div class="users-container">
   <div class="headline">
     <h1>USERS</h1>
+    <h5>Just click everywhere you want to edit</h5>
   </div>
 
   <br><br>
@@ -30,15 +31,15 @@
             <input type="file" #imageBox class="file-input" (change)="displayPreview($event.target.files[0], i)">
             <img [src]="tempUsersImages[i]" (click)="imageBox.click()" class="car-imgae">
           </td>
-          <td>{{u.userId}}</td>
-          <td><input type="text" [(ngModel)]="u.firstName"></td>
-          <td><input type="text" [(ngModel)]="u.lastName"></td>
-          <td><input type="text" [(ngModel)]="u.gender"></td>
-          <td><input type="date" [(ngModel)]="u.birthDate"></td>
-          <td><input type="email" [(ngModel)]="u.email"></td>
-          <td><input type="text" [(ngModel)]="u.username"></td>
-          <td><input type="text" [(ngModel)]="u.password"></td>
-          <td><input type="text" [(ngModel)]="u.role"></td>
+          <td (click)="changeForbidden()">{{u.userId}}</td>
+          <td><input type="text" class="exist-user-input" [(ngModel)]="u.firstName"></td>
+          <td><input type="text" class="exist-user-input" [(ngModel)]="u.lastName"></td>
+          <td><input type="text" class="exist-user-input" [(ngModel)]="u.gender"></td>
+          <td><input type="date" class="exist-user-input" [(ngModel)]="u.birthDate"></td>
+          <td><input type="email" class="exist-user-input" [(ngModel)]="u.email"></td>
+          <td><input type="text" class="exist-user-input" [(ngModel)]="u.username"></td>
+          <td><input type="text" class="exist-user-input" [(ngModel)]="u.password"></td>
+          <td><input type="text" class="exist-user-input" [(ngModel)]="u.role"></td>
           <td><button class="btn btn-success" (click)="updateUser(u, succeeded, failed)">UPDATE USER</button></td>
           <td><button class="btn btn-danger" (click)="deleteUser(u)">DELETE</button></td>
         </tr>

@@ -55,11 +55,11 @@ namespace BeardMan.Controllers
         [Authorize]
         [HttpPut]
         [Route("{userId}")]
-        public async Task<IActionResult> UpdateUser(string userId, [FromForm]UserModel userModel)
+        public IActionResult UpdateUser(string userId, [FromForm]UserModel userModel)
         {
             try
             {
-                return Ok(await usersLogic.UpdateUser(userModel));
+                return Ok( usersLogic.UpdateUser(userModel));
             }
             catch (Exception ex)
             {

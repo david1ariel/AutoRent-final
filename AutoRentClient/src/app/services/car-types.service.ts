@@ -55,7 +55,7 @@ export class CarTypesService {
             const carTypeModel = await this.http.put<CarTypeModel>(environment.cartypesBaseUrl+"/"+carType.carTypeId, formData).toPromise();
             console.log(carTypeModel);
             store.dispatch({ type: ActionType.UpdateFullCarType, payload: carTypeModel });
-            alert("Update succeeded!");
+            console.log("Update succeeded!");
             return true;
         }
         catch (httpErrorResponse) {
