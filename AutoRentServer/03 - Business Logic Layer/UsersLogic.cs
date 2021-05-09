@@ -15,7 +15,17 @@ namespace BeardMan
 
         public List<UserModel> GetAllUsers()
         {
-            return DB.Users.Select(p => new UserModel(p)).ToList();
+            List<UserModel> users = DB.Users.Select(p => new UserModel(p)).ToList();
+            for (int i = 0; i < users.Count; i++)
+            {
+                Adress adress = DB.Adresses.SingleOrDefault(p => p.AdressId == DB.UsersAdresses.SingleOrDefault(p=>p.UserId== users[i].UserId).AdressId);
+                if (adress != null)
+                    users[i].SetAdress(adress);
+                BranchUser branchToCheck = DB.BranchUsers.SingleOrDefault(p => p.UserId == users[i].UserId);
+                if (branchToCheck != null)
+                    users[i].BranchId = branchToCheck.BranchId;
+            }
+            return users;
         }
 
         public bool isUserNameExists(string userName)
@@ -96,6 +106,14 @@ namespace BeardMan
                     DB.SaveChanges();
                 }
 
+                BranchUser branchUserToAdd = new BranchUser
+                {
+                    UserId = addedUser.UserId,
+                    BranchId = userModel.BranchId
+                };
+                DB.BranchUsers.Add(branchUserToAdd);
+                DB.SaveChanges();
+
                 DB.Database.CommitTransaction();
 
                 userModel.UserId = addedUser.UserId;
@@ -153,6 +171,21 @@ namespace BeardMan
                 }
             }
 
+            BranchUser branchUser = DB.BranchUsers.SingleOrDefault(p => p.UserId == userModel.UserId);
+            if (branchUser == null)
+            {
+                BranchUser branchUserToAdd = new BranchUser
+                {
+                    BranchId=userModel.BranchId,
+                    UserId = userModel.UserId
+                };
+                DB.BranchUsers.Add(branchUserToAdd);
+            }
+            else
+            {
+                if (branchUser.BranchId != userModel.BranchId)
+                    branchUser.BranchId = userModel.BranchId;
+            }
             DB.SaveChanges();
 
             return userModel;

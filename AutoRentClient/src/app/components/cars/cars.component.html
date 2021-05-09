@@ -3,17 +3,36 @@
     <h1>OUR CARS FLEET:</h1>
   </div>
   <div>
+    <table class="available-container">
+      <tr class="tr-head-available">
+        <th></th>
+        <th>
+        </th>
+        <th>
+          Pickup Date:
+        </th>
+        <th>
+          <input class="date-input1" type="date" (ngModelChange)="pickupDateChanged()" [(ngModel)]="pickupDateString"
+            (focus)="changePickupDateToNow()">
+        </th>
+        <th>
+          Return Date:
+        </th>
+        <th>
+          <input class="date-input1" type="date" (ngModelChange)="returnDateChanged()" [(ngModel)]="returnDateString"
+            (focus)="changeReturnDateToNow()">
+        </th>
+        <th>
+          <button class="btn btn-success" [hidden]="available" (click)="showAvailableCars()">Show only available cars</button>
+          <button class="btn btn-success" [hidden]="!available" (click)="showAllCars()">Show All Cars</button>
+        </th>
+        <th></th>
+      </tr>
+    </table>
     <table>
-
       <thead>
         <tr class="tr-head">
-          <th>
-            <!-- <input [(ngModel)]="available" (ngModelChange)="sendDates($event)" type="checkbox">&nbsp;&nbsp;Show only
-            available between dates: -->
-            Show only available between dates:
-
-          </th>
-
+          <th>Filter By:</th>
           <th>
             <select class="exist-car-input" name="manufacturer" (change)="filterByManufacturer($event)">
               <option value='' disabled selected hidden>Manufaturer</option>
@@ -53,12 +72,7 @@
 
         </tr>
         <tr class="tr-head">
-          <th>Pickup Date: <br><input class="date-input1" type="date" (change)="pickupDateChanged()"  [(ngModel)]="pickupDateString" (focus)="changePickupDateToNow()">
-            <br>
-            Return Date:
-            <br>
-            <input class="date-input1" type="date" (Change)="returnDateChanged()" [(ngModel)]="returnDateString" (focus)="changeReturnDateToNow()">
-          </th>
+          <th></th>
           <th></th>
           <th></th>
           <th></th>
@@ -68,7 +82,9 @@
           <th></th>
         </tr>
         <tr class="tr-head">
-          <th><button [hidden]="available" (click)="sendDates()">Show</button><button [hidden]="!available" (click)="showAllCars()">Show All Cars</button></th>
+          <th>
+
+          </th>
           <th>Manufacturer</th>
           <th>Model</th>
           <th>Year</th>
@@ -245,7 +261,8 @@
     <div>
       <h5>Select Branch:</h5>
       <select class="exist-car-input" name="branch" (change)="checkCarTypesByBranchEvent($event)">
-        <option *ngFor="let b of branchFilter; let i = index" value="{{b}}" [selected]="i===chosenBranchId">{{b}}</option>
+        <option *ngFor="let b of branchFilter; let i = index" value="{{b}}" [selected]="i===chosenBranchId">{{b}}
+        </option>
       </select>
       <label *ngIf="isCarExistInBranch === 1">The car is available in this branch on those dates.</label>
       <label *ngIf="isCarExistInBranch === -1">sorry, no car of this type is available in this branch on those dates...

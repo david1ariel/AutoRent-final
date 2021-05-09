@@ -7,6 +7,7 @@ namespace BeardMan
     {
         public User()
         {
+            BranchUsers = new HashSet<BranchUser>();
             Rents = new HashSet<Rent>();
             UsersAdresses = new HashSet<UsersAdress>();
         }
@@ -23,6 +24,7 @@ namespace BeardMan
         public string Role { get; set; }
         public string ImageFileName { get; set; }
 
+        public virtual ICollection<BranchUser> BranchUsers { get; set; }
         public virtual ICollection<Rent> Rents { get; set; }
         public virtual ICollection<UsersAdress> UsersAdresses { get; set; }
     }

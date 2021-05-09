@@ -18,6 +18,7 @@ namespace BeardMan
         public virtual DbSet<Adress> Adresses { get; set; }
         public virtual DbSet<Availability> Availabilities { get; set; }
         public virtual DbSet<Branch> Branches { get; set; }
+        public virtual DbSet<BranchUser> BranchUsers { get; set; }
         public virtual DbSet<BranchesAdress> BranchesAdresses { get; set; }
         public virtual DbSet<Car> Cars { get; set; }
         public virtual DbSet<CarType> CarTypes { get; set; }
@@ -33,7 +34,7 @@ namespace BeardMan
             if (!optionsBuilder.IsConfigured)
             {
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
-                optionsBuilder.UseSqlServer("Server=DESKTOP-C2FEDD5\\SQLEXPRESS;Database=AutoRent;Trusted_Connection=True");
+                optionsBuilder.UseSqlServer("Server=DESKTOP-C2FEDD5\\SQLEXPRESS;Database=AutoRent;Trusted_Connection=True;");
             }
         }
 
@@ -71,6 +72,25 @@ namespace BeardMan
                 entity.Property(e => e.Name)
                     .IsRequired()
                     .HasMaxLength(50);
+            });
+
+            modelBuilder.Entity<BranchUser>(entity =>
+            {
+                entity.Property(e => e.UserId)
+                    .IsRequired()
+                    .HasMaxLength(10);
+
+                entity.HasOne(d => d.Branch)
+                    .WithMany(p => p.BranchUsers)
+                    .HasForeignKey(d => d.BranchId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_BranchUsers_Branches");
+
+                entity.HasOne(d => d.User)
+                    .WithMany(p => p.BranchUsers)
+                    .HasForeignKey(d => d.UserId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_BranchUsers_Users");
             });
 
             modelBuilder.Entity<BranchesAdress>(entity =>
@@ -227,11 +247,13 @@ namespace BeardMan
 
                 entity.Property(e => e.Password)
                     .IsRequired()
-                    .HasMaxLength(30);
+                    .HasMaxLength(500);
 
                 entity.Property(e => e.Role)
                     .IsRequired()
                     .HasMaxLength(50);
+
+                entity.Property(e => e.Salt).HasMaxLength(500);
 
                 entity.Property(e => e.Username)
                     .IsRequired()

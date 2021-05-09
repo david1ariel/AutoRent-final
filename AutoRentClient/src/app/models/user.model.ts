@@ -17,6 +17,7 @@ export class UserModel {
     public city?: string,
     public adressLine?: string,
     public postalZipCode?: string,
+    public branchId?: number,
 
   ) { }
 

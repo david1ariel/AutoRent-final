@@ -211,43 +211,40 @@ export class CarsComponent implements OnInit, OnDestroy {
     }
   }
 
-  async sendDates() {
+  async showAvailableCars() {
+
+
+    const now = new Date();
+    if (this.pickupDateString === "" || this.returnDateString === ""
+      || this.pickupDateString === undefined || this.returnDateString === undefined) {
+      alert('Both dates must be defined');
+
+      return;
+    }
+    // if (new Date(this.pickupDateString).valueOf() < now.valueOf() - (1000 * 60 * 60 * 24)) {
+    //   alert('Pickup date must from now on');
+    //   // this.available = false;
+    //   // event.stopPropagation();
+    //   return;
+    // }
+    if (new Date(this.pickupDateString).valueOf() > new Date(this.returnDateString).valueOf()) {
+      alert('Return date must be after pickup date');
+
+      return;
+    }
     this.available = !this.available;
-    // check if checkbox is checked:
-    // if (this.available === true) {
-      // check if dates are valid:
-      const now = new Date();
-      if (this.pickupDateString === "" || this.returnDateString === ""
-        || this.pickupDateString === undefined || this.returnDateString === undefined) {
-        alert('Both dates must be defined');
-        // this.available = false;
-        // event.stopPropagation();
-        return;
-      }
-      // if (new Date(this.pickupDateString).valueOf() < now.valueOf() - (1000 * 60 * 60 * 24)) {
-      //   alert('Pickup date must from now on');
-      //   // this.available = false;
-      //   // event.stopPropagation();
-      //   return;
-      // }
-      if (new Date(this.pickupDateString).valueOf() > new Date(this.returnDateString).valueOf()) {
-        alert('Return date must be after pickup date');
-        // this.available = false;
-        // event.stopPropagation();
-        return;
-      }
-      this.rent.pickupDate = new Date(this.pickupDateString);
-      this.rent.returnDate = new Date(this.returnDateString);
-      const success = await this.carTypesService.getAllAvailableCarTypes(this.rent);
-      if (store.getState().availableCarTypes.length > 0)
-        this.carsToShow = store.getState().availableCarTypes;
+    this.rent.pickupDate = new Date(this.pickupDateString);
+    this.rent.returnDate = new Date(this.returnDateString);
+    const success = await this.carTypesService.getAllAvailableCarTypes(this.rent);
+    if (store.getState().availableCarTypes.length > 0)
+      this.carsToShow = store.getState().availableCarTypes;
     // }
     // else {
     //   this.carsToShow = this.carTypes;
     // }
   }
 
-  showAllCars(){
+  showAllCars() {
     this.available = !this.available;
     this.carsToShow = this.carTypes;
   }
@@ -349,42 +346,23 @@ export class CarsComponent implements OnInit, OnDestroy {
     }
   }
 
-  pickupDateChanged() {
-    // const now = new Date();
-    // if (new Date(this.pickupDateString).valueOf() < now.valueOf() - (1000 * 60 * 60 * 24)
-    // ) {
-    //   alert("Dates must make sense!");
-    //   this.pickupDateString = now.toISOString().slice(0, 10);
-    //   this.returnDateString = now.toISOString().slice(0, 10);
-    //   this.rent.pickupDate = new Date(this.pickupDateString);
-    //   this.rent.returnDate = new Date(this.returnDateString);
-    //   return;
-    // }
-    // else {
+  async pickupDateChanged() {
     this.rent.pickupDate = new Date(this.pickupDateString);
-    // this.rent.returnDate = new Date(this.returnDateString);
-    // }
+    if (this.available) {
+      await this.carTypesService.getAllAvailableCarTypes(this.rent);
+      if (store.getState().availableCarTypes.length > 0)
+        this.carsToShow = store.getState().availableCarTypes;
+    }
     this.calcPrice();
   }
 
-  returnDateChanged() {
-    // const now = new Date();
-    // if (
-    //   new Date(this.pickupDateString).valueOf() > new Date(this.returnDateString).valueOf()
-    // ) {
-    //   console.log(new Date(this.pickupDateString).valueOf() < (now.setHours(now.getHours() + 1)).valueOf());
-    //   alert("Dates must make sense!");
-    //   const date = new Date();
-    //   this.pickupDateString = date.toISOString().slice(0, 10);
-    //   this.returnDateString = date.toISOString().slice(0, 10);
-    //   this.rent.pickupDate = new Date(this.pickupDateString);
-    //   this.rent.returnDate = new Date(this.returnDateString);
-    //   return;
-    // }
-    // else {
-    //   this.rent.pickupDate = new Date(this.pickupDateString);
+  async returnDateChanged() {
     this.rent.returnDate = new Date(this.returnDateString);
-    // }
+    if (this.available) {
+      await this.carTypesService.getAllAvailableCarTypes(this.rent);
+      if (store.getState().availableCarTypes.length > 0)
+        this.carsToShow = store.getState().availableCarTypes;
+    }
     this.calcPrice();
   }
 

@@ -8,7 +8,7 @@ by editing this MSBuild file. In order to learn more about this please visit htt
     <TimeStampOfAssociatedLegacyPublishXmlFile />
     <EncryptedPassword>AQAAANCMnd8BFdERjHoAwE/Cl+sBAAAAfu+ZsuTNT0OJpt8sX5/gLQAAAAACAAAAAAAQZgAAAAEAACAAAAC8VPrVU8nyqdPlaa6mjWZSIjqczfEuKhMWk32GQW1kjAAAAAAOgAAAAAIAACAAAAAEQVuIL9vTh1+guX9CJWdDZ0uW2M+rLYjus9Dx/0pB+CAAAAAWBgr5RJFSxmnfy59z2gRHzh7cAX6wyIpmOzvLEn7vdUAAAACYQZfUf9TU5jM7OMk7ou1yNTPhbRnKok98MM0G+dzwHNJ0xVsZKxMLJvVbtGr2coTJrTO5ygbYYHrflG9Kdn4G</EncryptedPassword>
     <_PublishTargetUrl>ftp://rentaride.space/rentaride.space/httpdocs</_PublishTargetUrl>
-    <History>True|2021-05-05T01:09:43.2710673Z;</History>
+    <History>False|2021-05-09T02:21:35.7222163Z;True|2021-05-05T04:09:43.2710673+03:00;</History>
   </PropertyGroup>
   <ItemGroup>
     <File Include="01 - Data Access Layer.dll">

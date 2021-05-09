@@ -9,7 +9,7 @@ namespace BeardMan
 {
     public class CarTypesLogic : BaseLogic
     {
-        public CarTypesLogic(AutoRentContext db) : base(db)  { }
+        public CarTypesLogic(AutoRentContext db) : base(db) { }
 
         public List<CarTypeModel> GetAllCarTypes()
         {
@@ -79,18 +79,25 @@ namespace BeardMan
 
         public List<CarTypeModel> GetAllAvailableCarTypes(RentModel rentModel)
         {
-            var query = (from car in DB.Cars
-                         join rent in DB.Rents on car.CarId equals rent.CarId
-                         join carType in DB.CarTypes on car.CarTypeId equals carType.CarTypeId
-                         where (
-                         !(rent.ReturnDate >= rentModel.PickupDate && rent.ReturnDate <= rentModel.ReturnDate) &&
-                         !(rent.PickupDate >= rentModel.PickupDate && rent.PickupDate <= rentModel.ReturnDate) &&
-                         !(rent.PickupDate <= rentModel.PickupDate && rent.ReturnDate >= rentModel.ReturnDate)) &&
-                         car.IsFixed==1
-                         select carType).Distinct();
+            List<string> unabailableCarsIds = DB.Rents
+                .Where(rent =>
+                        (rent.ReturnDate >= rentModel.PickupDate && rent.ReturnDate <= rentModel.ReturnDate) ||
+                        (rent.PickupDate >= rentModel.PickupDate && rent.PickupDate <= rentModel.ReturnDate) ||
+                        (rent.PickupDate <= rentModel.PickupDate && rent.ReturnDate >= rentModel.ReturnDate))
+                .ToList()
+                .GroupBy(p => p.CarId)
+                .Select(p => p.First().CarId)
+                .ToList();
+
+            List<CarType> availableCarTypes = DB.Cars
+                .Where(p=>!unabailableCarsIds.Contains(p.CarId))
+                .Join(DB.CarTypes, car => car.CarTypeId, carType => carType.CarTypeId, (car, carType) => carType)
+                .Select(carType => carType)
+                .Distinct()
+                .ToList();
 
             List<CarTypeModel> carTypeModels = new List<CarTypeModel>();
-            foreach (var item in query)
+            foreach (var item in availableCarTypes)
             {
                 carTypeModels.Add(new CarTypeModel(item));
             }
@@ -119,8 +126,8 @@ namespace BeardMan
             foreach (var item in carsWithNoAvail)
             {
                 CarTypeModel carTypeToCheck = carTypeModels.SingleOrDefault(p => p.CarTypeId == item.CarTypeId);
-                if(carTypeToCheck==null)
-                    carTypeModels.Add (new CarTypeModel(DB.CarTypes.SingleOrDefault(p => p.CarTypeId == item.CarTypeId)));
+                if (carTypeToCheck == null)
+                    carTypeModels.Add(new CarTypeModel(DB.CarTypes.SingleOrDefault(p => p.CarTypeId == item.CarTypeId)));
             }
             return carTypeModels;
         }

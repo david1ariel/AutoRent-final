@@ -19,7 +19,7 @@
           <th>Username</th>
           <th>Password</th>
           <th>Role</th>
-          <th></th>
+          <th>Branch</th>
           <th></th>
         </tr>
       </thead>
@@ -40,6 +40,8 @@
           <td><input type="text" class="exist-user-input" [(ngModel)]="u.username"></td>
           <td><input type="text" class="exist-user-input" [(ngModel)]="u.password"></td>
           <td><input type="text" class="exist-user-input" [(ngModel)]="u.role"></td>
+          <td><input type="text" class="exist-user-input" [ngModel]="u.branchId | branch:branches"
+            (ngModelChange)="u.branchId=$event" ></td>
           <td><button class="btn btn-success" (click)="updateUser(u, succeeded, failed)">UPDATE USER</button></td>
           <td><button class="btn btn-danger" (click)="deleteUser(u)">DELETE</button></td>
         </tr>
@@ -49,9 +51,11 @@
           <td></td>
           <td></td>
           <td></td>
+          <td></td>
           <td>
             <button (click)="clearChanges()" class="btn btn-danger">CLEAR CHANGES</button>
           </td>
+          <td></td>
           <td></td>
           <td></td>
           <td></td>

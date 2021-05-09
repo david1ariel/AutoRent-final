@@ -7,6 +7,7 @@ namespace BeardMan
     {
         public Branch()
         {
+            BranchUsers = new HashSet<BranchUser>();
             BranchesAdresses = new HashSet<BranchesAdress>();
             CarsBranches = new HashSet<CarsBranch>();
         }
@@ -15,6 +16,7 @@ namespace BeardMan
         public int LocationId { get; set; }
         public string Name { get; set; }
 
+        public virtual ICollection<BranchUser> BranchUsers { get; set; }
         public virtual ICollection<BranchesAdress> BranchesAdresses { get; set; }
         public virtual ICollection<CarsBranch> CarsBranches { get; set; }
     }

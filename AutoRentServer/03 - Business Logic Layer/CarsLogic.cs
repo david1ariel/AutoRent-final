@@ -26,6 +26,23 @@ namespace BeardMan
 
         public List<CarModel> GetAllAvailableCars(RentModel rentModel)
         {
+            //List<Rent> query = DB.Rents
+            //    .Where(p =>
+            //        !(p.ReturnDate >= rentModel.PickupDate && p.ReturnDate <= rentModel.ReturnDate) ||
+            //        !(p.PickupDate >= rentModel.PickupDate && p.PickupDate <= rentModel.ReturnDate) ||
+            //        !(p.PickupDate <= rentModel.PickupDate && p.ReturnDate >= rentModel.ReturnDate))
+            //    .ToList()
+            //    .GroupBy(p => p.CarId)
+            //    .Select(p => p.First())
+            //    .ToList();
+
+            //List<Car> query2 = query
+            //    .Join(DB.Cars, rent => rent.CarId, car => car.CarId, (rent, car) => car)
+            //    .Select(car => car)
+            //    .Distinct()
+            //    .ToList();
+
+
             List<Car> cars = DB.Cars.ToList();
             List<Rent> rents = DB.Rents.ToList();
             List<Car> availableCars = new List<Car>();
@@ -36,23 +53,36 @@ namespace BeardMan
                     availableCars.Add(car);
                     continue;
                 }
-                    
-                foreach (var rent in rents)
+
+                if (rents.Any(rent =>
+                    rent.CarId==car.CarId && 
+                        ((rent.ReturnDate >= rentModel.PickupDate && rent.ReturnDate <= rentModel.ReturnDate) ||
+                        (rent.PickupDate >= rentModel.PickupDate && rent.PickupDate <= rentModel.ReturnDate) ||
+                        (rent.PickupDate <= rentModel.PickupDate && rent.ReturnDate >= rentModel.ReturnDate))))
                 {
-                    
-                    if(car.CarId == rent.CarId && car.IsFixed == 1)
-                    {
-                        if (!((rent.ReturnDate >= rentModel.PickupDate && rent.ReturnDate <= rentModel.ReturnDate) ||
-                         (rent.PickupDate >= rentModel.PickupDate && rent.PickupDate <= rentModel.ReturnDate) ||
-                         (rent.PickupDate <= rentModel.PickupDate && rent.ReturnDate >= rentModel.ReturnDate)))
-                        {
-                            availableCars.Add(car);
-                            break;
-                        }
-                    }
+                    continue;
                 }
+                availableCars.Add(car);
+
+
+
+
+                //foreach (var rent in rents)
+                //{
+
+                //    if(car.CarId == rent.CarId && car.IsFixed == 1)
+                //    {
+                //        if (!(rent.ReturnDate >= rentModel.PickupDate && rent.ReturnDate <= rentModel.ReturnDate) ||
+                //            !(rent.PickupDate >= rentModel.PickupDate && rent.PickupDate <= rentModel.ReturnDate) ||
+                //            !(rent.PickupDate <= rentModel.PickupDate && rent.ReturnDate >= rentModel.ReturnDate))
+                //        {
+                //            availableCars.Add(car);
+                //            break;
+                //        }
+                //    }
+                //}
             }
-            
+
             List<CarModel> availableCarModels = availableCars.Select(p => new CarModel(p)).ToList();
             foreach (var item in availableCarModels)
             {

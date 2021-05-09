@@ -5,7 +5,7 @@ using System.Text;
 
 namespace BeardMan
 {
-    public class UserModel: ICloneable
+    public class UserModel : ICloneable
     {
         public string UserId { get; set; }
         public string FirstName { get; set; }
@@ -24,6 +24,7 @@ namespace BeardMan
         public string City { get; set; }
         public string AdressLine { get; set; }
         public string PostalZipCode { get; set; }
+        public int BranchId { get; set; }
 
         public UserModel() { }
 
@@ -42,23 +43,14 @@ namespace BeardMan
             ImageFileName = user.ImageFileName;
         }
 
-        public UserModel(User user, Adress adress)
+        public UserModel SetAdress(Adress adress)
         {
-            UserId = user.UserId;
-            FirstName = user.FirstName;
-            LastName = user.LastName;
-            Gender = user.Gender;
-            BirthDate = user.BirthDate;
-            Email = user.Email;
-            Username = user.Username;
-            Password = user.Password;
-            Salt = user.Salt;
-            Role = user.Role;
-            ImageFileName = user.ImageFileName;
-            Country = adress.Country;
-            City = adress.City;
-            AdressLine = adress.AdressLine;
-            PostalZipCode = adress.PostalZipCode;
+            Country = Country;
+            City = City;
+            AdressLine = AdressLine;
+            PostalZipCode = PostalZipCode;
+
+            return this;
         }
 
         public User ConvertToUser()
@@ -90,6 +82,7 @@ namespace BeardMan
             };
         }
 
+
         public object Clone()
         {
             return new UserModel
@@ -111,6 +104,7 @@ namespace BeardMan
                 City = City,
                 AdressLine = AdressLine,
                 PostalZipCode = PostalZipCode,
+                BranchId = BranchId
             };
         }
     }

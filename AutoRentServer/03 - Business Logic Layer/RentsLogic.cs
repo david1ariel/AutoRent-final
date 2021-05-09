@@ -51,6 +51,9 @@ namespace BeardMan
 
         public RentModel RentCar(RentModel rentModel)
         {
+
+
+
             DB.Rents.Add(rentModel.convertToRent());
             DB.SaveChanges();
             return rentModel;
